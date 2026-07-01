@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CLDD — Corn Leaf Disease Detector{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#f0fdf4',100:'#dcfce7',500:'#22c55e',600:'#16a34a',700:'#15803d',900:'#14532d' }
+          },
+          fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <style>
+    .fade-in { animation: fadeIn .35s ease both }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+    .nav-active { color:#16a34a; font-weight:600; }
+    ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:#f1f5f9}
+    ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+<!-- ── NAVBAR ─────────────────────────────────────────────── -->
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-100 shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="{{ url_for('index') }}" class="flex items-center gap-2.5 select-none">
+      <span class="w-8 h-8 rounded-xl bg-green-600 flex items-center justify-center shadow-sm">
+        <i class="ri-leaf-fill text-white text-lg"></i>
+      </span>
+      <div class="leading-tight">
+        <p class="text-base font-700 font-bold text-slate-900 tracking-tight">CLDD</p>
+        <p class="text-[10px] text-slate-400 -mt-0.5 hidden sm:block">Corn Leaf Disease Detector</p>
+      </div>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="hidden md:flex items-center gap-1">
+      <a href="{{ url_for('index') }}"
+         class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-green-700
+                hover:bg-green-50 transition-colors {% if request.endpoint=='index' %}nav-active bg-green-50{% endif %}">
+        Beranda
+      </a>
+      <a href="{{ url_for('cara_deteksi') }}"
+         class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-green-700
+                hover:bg-green-50 transition-colors {% if request.endpoint=='cara_deteksi' %}nav-active bg-green-50{% endif %}">
+        Cara Deteksi
+      </a>
+      <a href="{{ url_for('tentang') }}"
+         class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-green-700
+                hover:bg-green-50 transition-colors {% if request.endpoint=='tentang' %}nav-active bg-green-50{% endif %}">
+        Tentang
+      </a>
+    </nav>
+
+    <!-- Mobile hamburger -->
+    <button id="navToggle" onclick="toggleNav()"
+            class="md:hidden w-10 h-10 flex items-center justify-center rounded-xl
+                   hover:bg-slate-100 transition-colors text-slate-600">
+      <i id="navIcon" class="ri-menu-line text-xl"></i>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu"
+       class="hidden md:hidden border-t border-slate-100 bg-white px-4 pb-4 pt-2">
+    <a href="{{ url_for('index') }}"
+       class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium
+              text-slate-700 hover:bg-green-50 hover:text-green-700 transition-colors
+              {% if request.endpoint=='index' %}bg-green-50 text-green-700 font-semibold{% endif %}">
+      <i class="ri-home-4-line"></i> Beranda
+    </a>
+    <a href="{{ url_for('cara_deteksi') }}"
+       class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium
+              text-slate-700 hover:bg-green-50 hover:text-green-700 transition-colors
+              {% if request.endpoint=='cara_deteksi' %}bg-green-50 text-green-700 font-semibold{% endif %}">
+      <i class="ri-question-line"></i> Cara Deteksi
+    </a>
+    <a href="{{ url_for('tentang') }}"
+       class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium
+              text-slate-700 hover:bg-green-50 hover:text-green-700 transition-colors
+              {% if request.endpoint=='tentang' %}bg-green-50 text-green-700 font-semibold{% endif %}">
+      <i class="ri-information-line"></i> Tentang
+    </a>
+  </div>
+</header>
+
+<!-- ── PAGE CONTENT ───────────────────────────────────────── -->
+<main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 min-h-[calc(100vh-64px-80px)]">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer class="border-t border-slate-200 bg-white mt-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row
+              items-center justify-between gap-3 text-sm text-slate-400">
+    <div class="flex items-center gap-2">
+      <span class="w-6 h-6 rounded-lg bg-green-600 flex items-center justify-center">
+        <i class="ri-leaf-fill text-white text-xs"></i>
+      </span>
+      <span class="font-medium text-slate-600">CLDD</span>
+      <span>— Corn Leaf Disease Detector</span>
+    </div>
+    <span>© 2026 · Skripsi YOLOv8</span>
+  </div>
+</footer>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────── -->
+<script src="{{ url_for('static', filename='js/popup.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+  function toggleNav() {
+    const m = document.getElementById('mobileMenu');
+    const i = document.getElementById('navIcon');
+    m.classList.toggle('hidden');
+    i.className = m.classList.contains('hidden') ? 'ri-menu-line text-xl' : 'ri-close-line text-xl';
+  }
+</script>
+</body>
+</html>
